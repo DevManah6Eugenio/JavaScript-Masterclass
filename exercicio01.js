@@ -13,12 +13,23 @@ let script = `
         state string, 
         country string
     )`;
-let regCreateTable = /^\s*create\s+table\s+(\w+)\s+\(([\w\s,]+)\)/;
+let regCreateTable = /^\s*create\s+table\s+(\w+)\s*\(([\w\s,]+)\)/;
 let result = regCreateTable.exec(script);
 let tableName = result[1];
 let columns = result[2].split(',');
 columns = columns.map((each) => each.trim());
-console.log(`
-    tableName: ${tableName} 
-    columns: ${columns}
-`);
+const database = {
+    tables: {
+        [tableName] : {
+            columns : {},
+            data : []
+        }
+    }
+};
+columns.forEach(c => {
+    let column = c.split(' ');
+    database.tables[tableName].columns[column[0]] = column[1];
+});
+
+console.log(JSON.stringify(database, undefined, " "));
+
