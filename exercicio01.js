@@ -1,35 +1,43 @@
 /*
-Extraia o nome da tabela e armazene em uma variável chamada "tableName".
-Extraia as colunas da tabela e armazene em uma variável chamada "columns".
-Manipule a variável "columns", separando cada coluna com seu respectivo tipo, em uma string separada.
+No objeto "database", crie uma função chamada "createTable", que recebe o comando por parâmetro.
+Mova o código responsável por criar a tabela para dentro do método "createTable".
+Crie uma função chamada "execute", invocando dinamicamente a função "createTable"
 */
 
-let script = `
-    create table author (
-        id number,
-        name string,
-        age number,
-        city string,
-        state string, 
-        country string
-    )`;
-let regCreateTable = /^\s*create\s+table\s+(\w+)\s*\(([\w\s,]+)\)/;
-let result = regCreateTable.exec(script);
-let tableName = result[1];
-let columns = result[2].split(',');
-columns = columns.map((each) => each.trim());
 const database = {
-    tables: {
-        [tableName] : {
-            columns : {},
-            data : []
+    tables: {},
+    createTable(script) {
+        const regCreateTable = /^\s*create\s+table\s+(\w+)\s*\(([\w\s,]+)\)/;
+        const result = regCreateTable.exec(script);
+        const tableName = result[1];
+        const columns = result[2].split(',');
+        this.tables = {
+            [tableName] : {
+                "columns" : {},
+                "data" : []
+            }
+        }
+        columns.forEach(c => {
+            let column = c.trim().split(' ');
+            let nome = column[0];
+            let tipo = column[1];
+            this.tables[tableName].columns[nome] = tipo;
+        });
+    },
+    execute(script) {
+        if (script.startsWith("create table")) {
+            this.createTable(script);
         }
     }
 };
-columns.forEach(c => {
-    let column = c.split(' ');
-    database.tables[tableName].columns[column[0]] = column[1];
-});
 
-console.log(JSON.stringify(database, undefined, " "));
+database.execute( `create table author (
+    id number,
+    name string,
+    age number,
+    city string,
+    state string, 
+    country string
+)`);
 
+console.log(JSON.stringify(database, undefined, "   "));
